@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Notes App</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1><i class="fas fa-sticky-note"></i> Simple Notes</h1>
+    <button id="themeBtn"><i class="fas fa-moon"></i></button>
+  </header>
+
+  <div class="app-container">
+    <!-- Sidebar input -->
+    <div class="note-input">
+      <input type="text" id="noteTitle" placeholder="Title">
+      <div class="toolbar">
+        <button onclick="formatText('bold')" title="Bold"><i class="fas fa-bold"></i></button>
+        <button onclick="formatText('italic')" title="Italic"><i class="fas fa-italic"></i></button>
+        <button onclick="formatText('underline')" title="Underline"><i class="fas fa-underline"></i></button>
+        <button onclick="formatText('strikeThrough')" title="StrikeThrough"><i class="fas fa-strikethrough"></i></button>
+        <button onclick="formatText('hiliteColor', '#ffff00')" title="Highlight"><i class="fas fa-highlighter"></i></button>
+        <button onclick="formatText('justifyLeft')" title="Align Left"><i class="fas fa-align-left"></i></button>
+        <button onclick="formatText('justifyCenter')" title="Align Center"><i class="fas fa-align-center"></i></button>
+        <button onclick="formatText('justifyRight')" title="Align Right"><i class="fas fa-align-right"></i></button>
+        <button onclick="formatText('insertUnorderedList')" title="Unordered List"><i class="fas fa-list-ul"></i></button>
+        <button onclick="formatText('insertOrderedList')" title="Ordered List"><i class="fas fa-list-ol"></i></button>
+        <button onclick="formatCheckbox()" title="Checkbox"><i class="fas fa-check-square"></i></button>
+        <button onclick="formatText('formatBlock', 'H1')" title="Heading 1"><i class="fas fa-heading fa-xs"></i>1</button>
+        <button onclick="formatText('formatBlock', 'H2')" title="Heading 2"><i class="fas fa-heading fa-xs"></i>2</button>
+        <button onclick="formatText('formatBlock', 'H3')" title="Heading 3"><i class="fas fa-heading fa-xs"></i>3</button>
+      </div>
+
+      <div id="noteContent" contenteditable="true" placeholder="Take a note..."></div>
+      <div class="note-color-selector">
+        <label for="noteColor">Note Color:</label>
+        <input type="color" id="noteColor" value="#ffeb3b">
+      </div>
+      <button class="add-note" onclick="addNote()"><i class="fas fa-plus"></i> Add</button>
+    </div>
+
+    <!-- Notes area -->
+    <div class="notes-container" id="notesContainer"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

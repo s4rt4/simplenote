@@ -1,0 +1,221 @@
+:root {
+  --bg-light: #f5f5f5;
+  --bg-dark: #1c1f26;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: var(--bg-light);
+  transition: background 0.3s;
+}
+
+body.dark { background: var(--bg-dark); }
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: #007bff;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+header h1 { margin: 0; font-size: 24px; }
+header button {
+  background: none; border: none; color: white;
+  font-size: 20px; cursor: pointer;
+}
+
+/* Layout */
+.app-container { display: flex; height: 100vh; gap: 20px; padding: 15px; }
+.note-input {
+  width: 300px; display: flex; flex-direction: column;
+  gap: 10px; background: #f4f4f4; padding: 15px;
+  border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.notes-container {
+  flex: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+  gap: 15px; overflow-y: auto; height: 100%;
+}
+
+/* Note cards */
+.note {
+  min-height: 120px; 
+  max-height: 220px;
+  padding: 15px; 
+  border-radius: 12px;
+  background: var(--note-bg, #fff);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  display: flex; 
+  flex-direction: column; 
+  justify-content: space-between;
+  position: relative;   /* ✅ supaya .note-actions bisa nempel di pojok kanan atas */
+}
+
+.note .note-content {
+  max-height: 150px; overflow-y: auto; padding: 5px; border-radius: 6px;
+}
+.note [contenteditable="true"] { outline: none; box-shadow: none; }
+
+/* Toolbar */
+.toolbar { display: flex; flex-wrap: wrap; gap: 5px; }
+.toolbar button {
+  background: #f0f0f0; border: none; padding: 6px 8px;
+  border-radius: 6px; cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.toolbar button:hover { background: #ddd; }
+
+/* Inputs */
+.note-input input, #noteContent, #noteColor {
+  padding: 10px; border-radius: 8px; border: 1px solid #ccc; outline: none;
+}
+#noteContent {
+  min-height: 100px; max-height: 200px; overflow-y: auto;
+  background: white; color: black; width: 100%;
+}
+
+/* Buttons */
+.note-input button.add-note {
+  padding: 10px 15px; border: none; border-radius: 8px;
+  background: #007bff; color: white; cursor: pointer;
+  font-size: 16px; transition: background 0.2s;
+}
+.note-input button.add-note:hover { background: #0056b3; }
+
+/* Note actions */
+.note-actions { display: flex; justify-content: flex-end; gap: 5px; position: absolute; top: 10px; right: 10px; }
+.note-actions button {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 16px; border: 2px solid white;
+  transition: background 0.2s, transform 0.1s; cursor: pointer;
+}
+.note-actions button:hover { transform: scale(1.1); }
+
+.delete-btn { background: black; }
+.delete-btn:hover { background: #333; }
+.pdf-btn { background: #d32f2f; }
+.pdf-btn:hover { background: #b71c1c; }
+.copy-btn { background: #007bff; }
+.copy-btn:hover { background: #0056b3; }
+
+/* Text area input tetap rapi di dalam card */
+#noteContent {
+  min-height: 100px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 8px;
+  border-radius: 6px;
+  outline: none;
+  background: white;
+  color: black;
+  width: 100%;
+  box-sizing: border-box;   /* ✅ biar tidak melebar keluar card */
+}
+
+/* Note color selector biar bersih tanpa tanda minus */
+.note-color-selector input[type="color"],
+.note input[type="color"] {
+  -webkit-appearance: none;
+  border: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+/* Untuk Firefox */
+.note-color-selector input[type="color"]::-moz-color-swatch,
+.note input[type="color"]::-moz-color-swatch {
+  border-radius: 8px;
+  border: 2px solid #ccc;
+}
+
+/* Untuk Chrome / Edge / Safari */
+.note-color-selector input[type="color"]::-webkit-color-swatch-wrapper,
+.note input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border-radius: 8px;
+}
+.note-color-selector input[type="color"]::-webkit-color-swatch,
+.note input[type="color"]::-webkit-color-swatch {
+  border-radius: 8px;
+  border: 2px solid #ccc;
+}
+/* Bungkus label + input color dalam flex agar sejajar */
+.note-color-wrapper {
+  display: flex;
+  align-items: center;   /* ✅ teks sejajar dengan tombol color */
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.note-color-wrapper label {
+  font-size: 14px;
+  color: #333;
+}
+.note-color-wrapper {
+  display: flex;
+  align-items: center; /* ✅ teks rata tengah dengan input */
+  gap: 8px;
+  margin-top: 5px;
+}
+.note-color-wrapper label {
+  font-size: 14px;
+  color: #333;
+}
+/* Input + area catatan ikut gelap saat dark mode */
+body.dark .note-input {
+  background: #2a2d34;
+}
+
+body.dark #noteTitle,
+body.dark #noteContent,
+body.dark #noteColor {
+  background: #333;
+  color: #eee;
+  border: 1px solid #555;
+}
+
+body.dark #noteContent {
+  background: #333;
+  color: #eee;
+}
+/* Label note color ikut dark */
+body.dark .note-color-wrapper label {
+  color: #eee;
+}
+
+/* Toolbar ikut dark */
+body.dark .toolbar button {
+  background: #444;
+  color: #eee;
+}
+
+body.dark .toolbar button:hover {
+  background: #555;
+}
+/* Label di sidebar (ikut dark mode) */
+.note-color-selector label {
+  color: #000; /* default hitam di light mode */
+}
+
+body.dark .note-color-selector label {
+  color: #fff; /* putih di dark mode */
+}
+
+/* Label di dalam setiap note card (selalu hitam) */
+.note .note-color-wrapper label {
+  color: #000;
+}
+/* Paksa label di dalam note card selalu hitam */
+.note .note-color-wrapper label {
+  color: #000 !important;
+}

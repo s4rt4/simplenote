@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Notes App</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+:root {
+  --bg-light: #f5f5f5;
+  --bg-dark: #1c1f26;
+  --colors: #ffeb3b,#ffcc80,#80deea,#c5e1a5,#f48fb1;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: var(--bg-light);
+  transition: background 0.3s;
+}
+
+body.dark {
+  background: var(--bg-dark);
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: #007bff;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+header button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.note-input {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px;
+  max-width: 600px;
+  margin: 15px auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+body.dark .note-input {
+  background: #fff;
+}
+
+.toolbar button {
+  border: none;
+  background: #eee;
+  cursor: pointer;
+  font-size: 16px;
+  margin-right: 5px;
+  border-radius: 4px;
+  padding: 5px 8px;
+}
+
+.note-input input,
+.note-input #noteContent,
+.note-input #noteColor {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+  color: black;
+  background: #fff;
+}
+
+#noteContent {
+  min-height: 80px;
+}
+
+.note-input button.add-note {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.2s;
+  max-width: 150px;
+}
+
+.note-input button.add-note:hover {
+  background: #0056b3;
+}
+
+.notes-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* sebelumnya 220px */
+  gap: 15px;
+  padding: 15px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+
+.note {
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  color: black;
+  word-wrap: break-word;
+  position: relative;
+  max-width: 460px;
+}
+
+.note [contenteditable="true"] {
+  outline: 2px solid #007bff;
+  padding: 5px;
+  border-radius: 6px;
+}
+
+.note .note-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+/* Tombol delete bulat */
+.note .note-actions button.delete-btn {
+  background: black;       /* background hitam */
+  color: white;            /* icon putih */
+  border-radius: 50%;      /* bulat */
+  width: 28px;             /* ukuran kotak */
+  height: 28px;            /* ukuran kotak */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.note .note-actions button.delete-btn:hover {
+  transform: scale(1.1);   /* efek pop-up saat hover */
+}
+
+
+.note-color {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 5px;
+  cursor: pointer;
+  border: 2px solid #ccc;
+}
+/* Tampilkan color input selalu sebagai kotak */
+.note-input input[type="color"] {
+  -webkit-appearance: none;
+  border: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* Untuk Firefox */
+.note-input input[type="color"]::-moz-color-swatch {
+  border-radius: 8px;
+  border: 2px solid #ccc;
+}
+
+/* Untuk Chrome / Edge / Safari */
+.note-input input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border-radius: 8px;
+}
+.note-input input[type="color"]::-webkit-color-swatch {
+  border-radius: 8px;
+  border: 2px solid #ccc;
+}
+.note-color-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* jarak antara label dan input color */
+  margin-top: 5px;
+}
+
+.note-color-selector input[type="color"] {
+  -webkit-appearance: none;
+  border: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* Firefox */
+.note-color-selector input[type="color"]::-moz-color-swatch {
+  border-radius: 8px;
+  border: 2px solid #ccc;
+}
+
+/* Chrome / Edge / Safari */
+.note-color-selector input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border-radius: 8px;
+}
+.note-color-selector input[type="color"]::-webkit-color-swatch {
+  border-radius: 8px;
+  border: 2px solid #ccc;
+}
+.note-content {
+  min-height: 80px;      /* tinggi minimal */
+  max-height: 350px;     /* tinggi maksimal */
+  overflow-y: auto;      /* scroll vertical jika melebihi max-height */
+  padding: 5px;
+  border-radius: 6px;
+  outline: none;
+}
+.note {
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  color: black;
+  word-wrap: break-word;
+  position: relative;
+  min-height: 120px; /* card tetap proporsional */
+}
+.note .note-title[contenteditable="true"],
+.note .note-content[contenteditable="true"],
+#noteContent {
+  outline: none;       /* hilangkan border/outline biru saat focus */
+  box-shadow: none;    /* pastikan tidak ada shadow */
+}
+.app-container {
+  display: flex;
+  height: 100vh;
+  gap: 20px;
+  box-sizing: border-box;
+  padding: 15px;
+}
+
+.note-input {
+  width: 300px; /* lebar sidebar */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #f4f4f4;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.notes-container {
+  flex: 1; /* sisa ruang untuk notes */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+  gap: 15px;
+  overflow-y: auto;
+  height: 100%;
+}
+#noteContent {
+  min-height: 100px;       /* tinggi minimal */
+  max-height: 200px;       /* tinggi maksimal */
+  overflow-y: auto;        /* scroll jika teks melebihi max-height */
+  padding: 8px;
+  border-radius: 6px;
+  outline: none;
+  background: white;       /* tetap putih walaupun dark mode */
+  color: black;            /* teks selalu hitam */
+  box-sizing: border-box;
+  width: 100%;
+}
+.note {
+  min-height: 120px;
+  max-height: 260px;   /* tinggi maksimal card */
+  overflow: hidden;    /* agar card tidak membesar ke bawah */
+  padding: 15px;
+  border-radius: 12px;
+  background: var(--note-bg, #fff);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.note .note-content {
+  max-height: 200px;   /* tinggi content */
+  overflow-y: auto;    /* scroll jika teks panjang */
+}
+.note {
+  min-height: 260px;   /* tinggi card tetap */
+  max-height: 220px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.note .note-content {
+  max-height: 150px;   /* scroll hanya di content */
+  overflow-y: auto;
+}
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.toolbar button {
+  background: #f0f0f0;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.toolbar button:hover {
+  background: #ddd;
+}
+
+.note-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.note-actions button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 16px;
+  transition: background 0.2s;
+}
+
+.delete-btn {
+  background: black;
+}
+
+.delete-btn:hover {
+  background: #333;
+}
+
+.pdf-btn {
+  background: #d32f2f; /* merah */
+}
+
+.pdf-btn:hover {
+  background: #b71c1c;
+}
+.copy-btn {
+  background: #007bff; /* biru */
+}
+
+.copy-btn:hover {
+  background: #0056b3;
+}
+.note-actions button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid white; /* border putih */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 16px;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.note-actions button:hover {
+  transform: scale(1.1); /* efek hover ringan */
+}
+.delete-btn {
+  background: black;       /* tetap hitam */
+  border: 2px solid white; /* tambahkan border putih */
+  color: white;
+}
+
+.delete-btn:hover {
+  background: #333;
+}
+
+</style>
+</head>
+<body>
+<header>
+  <h1><i class="fas fa-sticky-note"></i> Simple Notes</h1>
+  <button id="themeBtn"><i class="fas fa-moon"></i></button>
+</header>
+
+<div class="app-container">
+  <!-- Sidebar input -->
+  <div class="note-input">
+    <input type="text" id="noteTitle" placeholder="Title">
+    <div class="toolbar">
+      <div class="toolbar">
+  <div class="toolbar">
+  <div class="toolbar">
+  <button onclick="formatText('bold')" title="Bold"><i class="fas fa-bold"></i></button>
+  <button onclick="formatText('italic')" title="Italic"><i class="fas fa-italic"></i></button>
+  <button onclick="formatText('underline')" title="Underline"><i class="fas fa-underline"></i></button>
+  <button onclick="formatText('strikeThrough')" title="StrikeThrough"><i class="fas fa-strikethrough"></i></button>
+  <button onclick="formatText('hiliteColor', '#ffff00')" title="Highlight"><i class="fas fa-highlighter"></i></button>
+  <button onclick="formatText('justifyLeft')" title="Align Left"><i class="fas fa-align-left"></i></button>
+  <button onclick="formatText('justifyCenter')" title="Align Center"><i class="fas fa-align-center"></i></button>
+  <button onclick="formatText('justifyRight')" title="Align Right"><i class="fas fa-align-right"></i></button>
+  <button onclick="formatText('insertUnorderedList')" title="Unordered List"><i class="fas fa-list-ul"></i></button>
+  <button onclick="formatText('insertOrderedList')" title="Ordered List"><i class="fas fa-list-ol"></i></button>
+  <button onclick="formatCheckbox()" title="Checkbox"><i class="fas fa-check-square"></i></button>
+  
+  <!-- Heading buttons -->
+  <button onclick="formatText('formatBlock', 'H1')" title="Heading 1"><i class="fas fa-heading fa-xs"></i>1</button>
+  <button onclick="formatText('formatBlock', 'H2')" title="Heading 2"><i class="fas fa-heading fa-xs"></i>2</button>
+  <button onclick="formatText('formatBlock', 'H3')" title="Heading 3"><i class="fas fa-heading fa-xs"></i>3</button>
+</div>
+
+</div>
+
+</div>
+
+    </div>
+    <div id="noteContent" contenteditable="true" placeholder="Take a note..."></div>
+    <div class="note-color-selector">
+      <label for="noteColor">Note Color:</label>
+      <input type="color" id="noteColor" value="#ffeb3b">
+    </div>
+    <button class="add-note" onclick="addNote()"><i class="fas fa-plus"></i> Add</button>
+
+  </div>
+
+  <!-- Notes area -->
+  <div class="notes-container" id="notesContainer">
+    <!-- Notes akan muncul di sini -->
+  </div>
+
+</div>
+
+
+<script>
+const themeBtn = document.getElementById('themeBtn');
+const notesContainer = document.getElementById('notesContainer');
+
+// Theme toggle
+themeBtn.addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+  themeBtn.innerHTML = document.body.classList.contains('dark') ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+  localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+});
+
+if(localStorage.getItem('theme') === 'dark'){
+  document.body.classList.add('dark');
+  themeBtn.innerHTML = '<i class="fas fa-sun"></i>';
+}
+
+// Formatting functions
+function formatText(command){
+  document.execCommand(command, false, null);
+}
+function formatCheckbox(){
+  const sel = window.getSelection();
+  if(sel.rangeCount > 0){
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    sel.getRangeAt(0).insertNode(checkbox);
+  }
+}
+
+// Notes storage
+let notes = JSON.parse(localStorage.getItem('notes') || '[]');
+renderNotes();
+
+function addNote(){
+  const title = document.getElementById('noteTitle').value.trim();
+  const content = document.getElementById('noteContent').innerHTML.trim();
+  const color = document.getElementById('noteColor').value;
+  if(!title && !content) return;
+
+  notes.push({title, content, color});
+  localStorage.setItem('notes', JSON.stringify(notes));
+  document.getElementById('noteTitle').value = '';
+  document.getElementById('noteContent').innerHTML = '';
+  renderNotes();
+}
+
+function deleteNote(index){
+  notes.splice(index,1);
+  localStorage.setItem('notes', JSON.stringify(notes));
+  renderNotes();
+}
+
+// Inline edit with autosave
+function renderNotes(){
+  notesContainer.innerHTML = '';
+  notes.forEach((note,index)=>{
+    const noteDiv = document.createElement('div');
+    noteDiv.className = 'note';
+    noteDiv.id = 'note-'+index;
+    noteDiv.style.background = note.color;
+    noteDiv.innerHTML = `
+      <div class="note-actions">
+        <button class="delete-btn" onclick="deleteNote(${index})"><i class="fas fa-trash"></i></button>
+        <button class="pdf-btn" onclick="saveAsPDF(${index})" title="Save as PDF"><i class="fas fa-file-pdf"></i></button>
+        <button class="copy-btn" onclick="copyNote(${index})" title="Copy to Clipboard"><i class="fas fa-copy"></i></button>
+      </div>
+      <h3 contenteditable="true" class="note-title">${note.title}</h3>
+      <div class="note-content" contenteditable="true">${note.content}</div>
+      <div style="margin-top:5px;">Color: 
+        <input type="color" value="${note.color}" onchange="changeColor(${index}, this.value)">
+      </div>
+    `;
+    // Autosave on input
+    const titleEl = noteDiv.querySelector('.note-title');
+    const contentEl = noteDiv.querySelector('.note-content');
+    titleEl.addEventListener('input', ()=> autosave(index));
+    contentEl.addEventListener('input', ()=> autosave(index));
+
+    notesContainer.appendChild(noteDiv);
+  });
+}
+
+function autosave(index){
+  const noteDiv = document.getElementById('note-'+index);
+  const title = noteDiv.querySelector('.note-title').innerHTML;
+  const content = noteDiv.querySelector('.note-content').innerHTML;
+  notes[index].title = title;
+  notes[index].content = content;
+  localStorage.setItem('notes', JSON.stringify(notes));
+}
+
+function changeColor(index, color){
+  notes[index].color = color;
+  localStorage.setItem('notes', JSON.stringify(notes));
+  renderNotes();
+}
+let savedSelection = null;
+
+// Simpan selection saat user mengetik / klik di note
+function saveSelection() {
+  const sel = window.getSelection();
+  if(sel.rangeCount > 0){
+    savedSelection = sel.getRangeAt(0);
+  }
+}
+
+// Restore selection sebelum insert
+function restoreSelection() {
+  if(savedSelection){
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(savedSelection);
+  }
+}
+
+// Panggil saveSelection setiap klik di note
+document.addEventListener('click', (e)=>{
+  if(e.target.closest('.note-content') || e.target.closest('#noteContent')){
+    saveSelection();
+  }
+});
+
+// Insert checkbox
+function formatCheckbox(){
+  restoreSelection(); // kembalikan fokus terakhir
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  if(savedSelection){
+    savedSelection.insertNode(checkbox);
+    // geser cursor setelah checkbox
+    savedSelection.setStartAfter(checkbox);
+    savedSelection.setEndAfter(checkbox);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(savedSelection);
+  }
+}
+function formatText(command, value = null) {
+  document.execCommand(command, false, value);
+}
+
+function saveAsPDF(index) {
+  const note = notes[index];
+  
+  // Buat elemen sementara
+  const tempDiv = document.createElement('div');
+  tempDiv.style.padding = "15px";
+  tempDiv.style.background = note.color;
+  tempDiv.innerHTML = `<h3>${note.title}</h3><div>${note.content}</div>`;
+
+  // Generate PDF
+  html2pdf()
+    .from(tempDiv)
+    .set({
+      margin: 10,
+      filename: `${note.title || 'note'}.pdf`,
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    })
+    .save();
+}
+function copyNote(index) {
+  const note = notes[index];
+  if (!note) return;
+
+  // Gabungkan judul + konten
+  const text = `${note.title}\n\n${note.content.replace(/<br>/g, "\n")}`;
+
+  navigator.clipboard.writeText(text).then(() => {
+    alert('Note copied to clipboard!');
+  }).catch(err => {
+    console.error('Clipboard error:', err);
+    alert('Failed to copy note!');
+  });
+}
+
+</script>
+</body>
+</html>
